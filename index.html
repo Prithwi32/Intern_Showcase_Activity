@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI & Automation Learning Game 🎮</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7e22ce 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 15px;
+            font-size: 1.2em;
+        }
+
+        .score-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .game-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            color: #333;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #7e22ce;
+        }
+
+        .game-title {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #1e3c72;
+        }
+
+        .game-status {
+            font-size: 2em;
+        }
+
+        .drop-zone {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border: 3px dashed #7e22ce;
+            border-radius: 10px;
+            padding: 15px;
+            min-height: 120px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .drop-zone.drag-over {
+            background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%);
+            border-color: #00897b;
+            transform: scale(1.02);
+        }
+
+        .drop-zone.correct {
+            background: linear-gradient(135deg, #c8e6c9 0%, #81c784 100%);
+            border-color: #2e7d32;
+            border-style: solid;
+        }
+
+        .drop-zone.incorrect {
+            background: linear-gradient(135deg, #ffcdd2 0%, #ef5350 100%);
+            border-color: #c62828;
+            border-style: solid;
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .cards-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 10px;
+            min-height: 80px;
+        }
+
+        .card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 18px;
+            border-radius: 8px;
+            cursor: move;
+            user-select: none;
+            font-weight: 500;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            font-size: 0.95em;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .card.dragging {
+            opacity: 0.5;
+        }
+
+        .two-column-game {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .column {
+            background: rgba(0, 0, 0, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .column-title {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            color: #1e3c72;
+            text-align: center;
+            padding: 10px;
+            background: rgba(126, 34, 206, 0.1);
+            border-radius: 8px;
+        }
+
+        .column-drop-zone {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border: 3px dashed #7e22ce;
+            border-radius: 10px;
+            padding: 15px;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .column-drop-zone.drag-over {
+            background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%);
+            border-color: #00897b;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.reset-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .feedback {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 1.1em;
+            font-weight: bold;
+            min-height: 30px;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .feedback.success {
+            background: rgba(76, 175, 80, 0.2);
+            color: #2e7d32;
+        }
+
+        .feedback.error {
+            background: rgba(244, 67, 54, 0.2);
+            color: #c62828;
+        }
+
+        .celebration {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 60px;
+            border-radius: 20px;
+            font-size: 2em;
+            font-weight: bold;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            animation: celebrationPop 0.5s ease;
+            display: none;
+        }
+
+        .celebration.show {
+            display: block;
+        }
+
+        @keyframes celebrationPop {
+            0% { transform: translate(-50%, -50%) scale(0); }
+            50% { transform: translate(-50%, -50%) scale(1.1); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .global-controls {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .global-controls button {
+            font-size: 1.2em;
+            padding: 15px 40px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .games-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .two-column-game {
+                grid-template-columns: 1fr;
+            }
+
+            .score-board {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .celebration {
+                font-size: 1.5em;
+                padding: 30px 40px;
+            }
+        }
+
+        .zone-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .sequence-zone {
+            margin-bottom: 10px;
+        }
+
+        /* Dice Rolling Section */
+        .dice-section {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .dice-container {
+            display: inline-block;
+            margin: 20px;
+        }
+
+        .dice {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #fff 0%, #f0f0f0 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4em;
+            font-weight: bold;
+            color: #1e3c72;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .dice:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .dice.rolling {
+            animation: diceRoll 0.5s ease-in-out;
+        }
+
+        @keyframes diceRoll {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(90deg) scale(1.1); }
+            50% { transform: rotate(180deg) scale(0.9); }
+            75% { transform: rotate(270deg) scale(1.1); }
+        }
+
+        .dice-instruction {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .selected-games {
+            margin-top: 20px;
+            font-size: 1.1em;
+        }
+
+        .game-selector-cards {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .game-selector-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.1em;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            min-width: 200px;
+            text-align: center;
+        }
+
+        .game-selector-card:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .game-selector-card.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+            filter: grayscale(0.5);
+        }
+
+        /* Question Modal */
+        .question-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .question-modal.show {
+            display: flex;
+        }
+
+        .question-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 700px;
+            width: 90%;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .question-title {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .question-text {
+            font-size: 1.3em;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .option-btn {
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            padding: 18px 25px;
+            border-radius: 12px;
+            border: 3px solid transparent;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .option-btn:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: translateX(10px);
+            border-color: #667eea;
+        }
+
+        .option-btn.correct {
+            background: #4caf50;
+            color: white;
+            border-color: #2e7d32;
+        }
+
+        .option-btn.incorrect {
+            background: #f44336;
+            color: white;
+            border-color: #c62828;
+            animation: shake 0.5s;
+        }
+
+        .option-btn:disabled {
+            cursor: not-allowed;
+        }
+
+        .question-feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .next-question-btn {
+            margin-top: 20px;
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2em;
+        }
+
+        .games-grid.hidden {
+            display: none;
+        }
+
+        .progress-bar {
+            background: rgba(255, 255, 255, 0.2);
+            height: 8px;
+            border-radius: 10px;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #4caf50 0%, #8bc34a 100%);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .exit-game-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+        }
+
+        .exit-game-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .game-timer-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(126, 34, 206, 0.1);
+            border-radius: 10px;
+        }
+
+        .game-timer {
+            font-size: 2em;
+            font-weight: bold;
+            color: #1e3c72;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px 20px;
+            border-radius: 10px;
+            min-width: 100px;
+            text-align: center;
+        }
+
+        .game-timer.warning {
+            background: rgba(255, 152, 0, 0.8);
+            color: white;
+            animation: pulse 0.5s infinite;
+        }
+
+        .game-timer.danger {
+            background: rgba(244, 67, 54, 0.8);
+            color: white;
+            animation: pulse 0.3s infinite;
+        }
+
+        .game-card {
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎮 AI & Intelligent Automation Learning Game</h1>
+            <p>Master AI workflows through interactive challenges!</p>
+            <div class="score-board">
+                <div class="score-item">
+                    🎯 Games Completed: <span id="totalScore">0</span>/<span id="totalGames">0</span>
+                </div>
+                <div class="score-item">
+                    ⏱️ Time Bonus: <span id="timeBonus">0</span> pts
+                </div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar"></div>
+            </div>
+        </header>
+
+        <!-- Dice Rolling Section -->
+        <div class="dice-section" id="diceSection">
+            <div class="dice-instruction">🎲 Roll the Dice to Select Your Games!</div>
+            <p style="margin-bottom: 20px;">Click the dice to randomly select which games you'll play</p>
+            <div class="dice-container">
+                <div class="dice" id="dice" onclick="rollDice()">
+                    <span id="diceNumber">🎲</span>
+                </div>
+            </div>
+            <div class="selected-games" id="selectedGamesText"></div>
+            <div class="game-selector-cards" id="gameSelectorCards"></div>
+        </div>
+
+        <div class="games-grid" id="gamesGrid" style="display: none;">
+            <!-- Game 1: AI Workflow Sequence -->
+            <div class="game-card">
+                <div class="game-header">
+                    <div class="game-title">1️⃣ AI Workflow Sequence</div>
+                    <div class="game-status" id="game1-status"></div>
+                </div>
+                <p style="margin-bottom: 15px; color: #666;">Arrange the steps in the correct order:</p>
+                
+                <div class="cards-container" id="game1-cards"></div>
+                
+                <div class="sequence-zone">
+                    <div class="zone-label">Drag cards here in order:</div>
+                    <div class="drop-zone" id="game1-drop" data-game="1"></div>
+                </div>
+
+                <div class="button-group">
+                    <button onclick="checkAnswer(1)">✓ Check Answer</button>
+                    <button class="reset-btn" onclick="resetGame(1)">↻ Reset</button>
+                </div>
+                <div class="feedback" id="game1-feedback"></div>
+            </div>
+
+            <!-- Game 2: Sorting Traditional vs Intelligent Automation -->
+            <div class="game-card">
+                <div class="game-header">
+                    <div class="game-title">2️⃣ Traditional vs Intelligent Automation</div>
+                    <div class="game-status" id="game2-status"></div>
+                </div>
+                <p style="margin-bottom: 15px; color: #666;">Sort items into the correct category:</p>
+                
+                <div class="cards-container" id="game2-cards"></div>
+                
+                <div class="two-column-game">
+                    <div class="column">
+                        <div class="column-title">📋 Traditional Automation</div>
+                        <div class="column-drop-zone" id="game2-drop-traditional" data-game="2" data-category="traditional"></div>
+                    </div>
+                    <div class="column">
+                        <div class="column-title">🧠 Intelligent Automation</div>
+                        <div class="column-drop-zone" id="game2-drop-intelligent" data-game="2" data-category="intelligent"></div>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button onclick="checkAnswer(2)">✓ Check Answer</button>
+                    <button class="reset-btn" onclick="resetGame(2)">↻ Reset</button>
+                </div>
+                <div class="feedback" id="game2-feedback"></div>
+            </div>
+
+            <!-- Game 3: GenAI Request Lifecycle -->
+            <div class="game-card">
+                <div class="game-header">
+                    <div class="game-title">3️⃣ GenAI Request Lifecycle</div>
+                    <div class="game-status" id="game3-status"></div>
+                </div>
+                <p style="margin-bottom: 15px; color: #666;">Arrange the GenAI request steps in order:</p>
+                
+                <div class="cards-container" id="game3-cards"></div>
+                
+                <div class="sequence-zone">
+                    <div class="zone-label">Drag cards here in order:</div>
+                    <div class="drop-zone" id="game3-drop" data-game="3"></div>
+                </div>
+
+                <div class="button-group">
+                    <button onclick="checkAnswer(3)">✓ Check Answer</button>
+                    <button class="reset-btn" onclick="resetGame(3)">↻ Reset</button>
+                </div>
+                <div class="feedback" id="game3-feedback"></div>
+            </div>
+
+            <!-- Game 4: AI Failure Handling Flow -->
+            <div class="game-card">
+                <div class="game-header">
+                    <div class="game-title">4️⃣ AI Failure Handling Flow</div>
+                    <div class="game-status" id="game4-status"></div>
+                </div>
+                <p style="margin-bottom: 15px; color: #666;">Arrange fallback steps when AI confidence is low:</p>
+                
+                <div class="cards-container" id="game4-cards"></div>
+                
+                <div class="sequence-zone">
+                    <div class="zone-label">Drag cards here in order:</div>
+                    <div class="drop-zone" id="game4-drop" data-game="4"></div>
+                </div>
+
+                <div class="button-group">
+                    <button onclick="checkAnswer(4)">✓ Check Answer</button>
+                    <button class="reset-btn" onclick="resetGame(4)">↻ Reset</button>
+                </div>
+                <div class="feedback" id="game4-feedback"></div>
+            </div>
+
+            <!-- Game 5: GenAI Readiness Priority -->
+            <div class="game-card">
+                <div class="game-header">
+                    <div class="game-title">5️⃣ GenAI Readiness Priority</div>
+                    <div class="game-status" id="game5-status"></div>
+                </div>
+                <p style="margin-bottom: 15px; color: #666;">Order the implementation priorities correctly:</p>
+                
+                <div class="cards-container" id="game5-cards"></div>
+                
+                <div class="sequence-zone">
+                    <div class="zone-label">Drag cards here in order (highest to lowest priority):</div>
+                    <div class="drop-zone" id="game5-drop" data-game="5"></div>
+                </div>
+
+                <div class="button-group">
+                    <button onclick="checkAnswer(5)">✓ Check Answer</button>
+                    <button class="reset-btn" onclick="resetGame(5)">↻ Reset</button>
+                </div>
+                <div class="feedback" id="game5-feedback"></div>
+            </div>
+        </div>
+
+        <div class="global-controls">
+            <button id="globalBackBtn" onclick="globalBackAction()">🎲 Roll a dice</button>
+        </div>
+    </div>
+
+    <div class="celebration" id="celebration">
+        🎉 Congratulations! 🎉<br>
+        You've mastered AI workflows!
+    </div>
+
+    <!-- Question Modal -->
+    <div class="question-modal" id="questionModal">
+        <div class="question-content">
+            <div class="question-header">
+                <div class="question-title" id="questionTitle">Question 1/5</div>
+            </div>
+            <div class="question-text" id="questionText"></div>
+            <div class="options-container" id="optionsContainer"></div>
+            <div class="question-feedback" id="questionFeedback"></div>
+            <button class="next-question-btn" id="nextQuestionBtn" onclick="nextQuestion()" style="display: none;">Next Question →</button>
+        </div>
+    </div>
+
+    <script>
+        // Game Data Configuration
+        const gameData = {
+            1: {
+                type: 'sequence',
+                title: '1️⃣ AI Workflow Sequence',
+                cards: ['Input', 'OCR', 'Rule Engine', 'AI Decision', 'RPA Action', 'Notification'],
+                correctOrder: ['Input', 'OCR', 'Rule Engine', 'AI Decision', 'RPA Action', 'Notification']
+            },
+            2: {
+                type: 'categorize',
+                title: '2️⃣ Traditional vs Intelligent Automation',
+                cards: [
+                    { text: 'Rule-Based Processing', category: 'traditional' },
+                    { text: 'Predefined Workflows', category: 'traditional' },
+                    { text: 'Machine Learning Models', category: 'intelligent' },
+                    { text: 'Natural Language Processing', category: 'intelligent' },
+                    { text: 'Static Decision Trees', category: 'traditional' },
+                    { text: 'Computer Vision/OCR', category: 'intelligent' },
+                    { text: 'Predictive Analytics', category: 'intelligent' },
+                    { text: 'Fixed If-Then Logic', category: 'traditional' }
+                ]
+            },
+            3: {
+                type: 'sequence',
+                title: '3️⃣ GenAI Request Lifecycle',
+                cards: ['User Prompt', 'Prompt Engineering', 'LLM Processing', 'Response Generation', 'Post-Processing', 'Logging & Telemetry'],
+                correctOrder: ['User Prompt', 'Prompt Engineering', 'LLM Processing', 'Response Generation', 'Post-Processing', 'Logging & Telemetry']
+            },
+            4: {
+                type: 'sequence',
+                title: '4️⃣ AI Failure Handling Flow',
+                cards: ['AI Prediction', 'Confidence Check', 'Human Review Queue', 'Manual Decision', 'Feedback Loop', 'Model Retraining'],
+                correctOrder: ['AI Prediction', 'Confidence Check', 'Human Review Queue', 'Manual Decision', 'Feedback Loop', 'Model Retraining']
+            },
+            5: {
+                type: 'sequence',
+                title: '5️⃣ GenAI Readiness Priority',
+                cards: ['Data Quality', 'Automation', 'AI Model', 'UI'],
+                correctOrder: ['Data Quality', 'Automation', 'AI Model', 'UI']
+            }
+        };
+
+        // Game State
+        let gameState = {
+            1: { completed: false, correct: false },
+            2: { completed: false, correct: false },
+            3: { completed: false, correct: false },
+            4: { completed: false, correct: false },
+            5: { completed: false, correct: false }
+        };
+
+        let selectedGames = [];
+        let currentGameNumber = null;
+        let gameTimer = null;
+        let gameTimeRemaining = 60;
+        let timeBonusPoints = 0;
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            setupDropZones();
+        });
+
+        // Roll Dice Function
+        function rollDice() {
+            const dice = document.getElementById('dice');
+            const diceNumber = document.getElementById('diceNumber');
+            
+            dice.classList.add('rolling');
+            
+            // Animate dice rolling
+            let counter = 0;
+            const rollInterval = setInterval(() => {
+                diceNumber.textContent = Math.floor(Math.random() * 5) + 1;
+                counter++;
+                if (counter > 10) {
+                    clearInterval(rollInterval);
+                    // Final number (0-5 games)
+                    const finalNumber = Math.floor(Math.random() * 6); // 0 to 5
+                    diceNumber.textContent = finalNumber;
+                    dice.classList.remove('rolling');
+                    
+                    // Select random games
+                    selectRandomGames(finalNumber);
+                }
+            }, 100);
+        }
+
+        // Select Random Games
+        function selectRandomGames(count) {
+            if (count === 0) {
+                document.getElementById('selectedGamesText').innerHTML = 
+                    '<p style="color: #ffd700; font-size: 1.2em;">🎲 You rolled 0! Roll again to play some games!</p>';
+                document.getElementById('gameSelectorCards').innerHTML = '';
+                return;
+            }
+
+            const allGameNumbers = [1, 2, 3, 4, 5];
+            selectedGames = [];
+            
+            // Shuffle and select
+            const shuffled = allGameNumbers.sort(() => Math.random() - 0.5);
+            selectedGames = shuffled.slice(0, count);
+            selectedGames.sort((a, b) => a - b);
+
+            document.getElementById('selectedGamesText').innerHTML = 
+                `<p style="color: #4caf50; font-size: 1.2em;">🎉 You rolled ${count}! Select a game card below to start:</p>`;
+
+            // Create game selector cards
+            const container = document.getElementById('gameSelectorCards');
+            container.innerHTML = '';
+            
+            selectedGames.forEach(gameNum => {
+                const card = document.createElement('div');
+                card.className = 'game-selector-card';
+                card.textContent = gameData[gameNum].title;
+                card.onclick = () => startGame(gameNum);
+                container.appendChild(card);
+            });
+        }
+
+        // Start Game
+        function startGame(gameNum) {
+            currentGameNumber = gameNum;
+            
+            // Hide dice section, show games grid
+            document.getElementById('diceSection').style.display = 'none';
+            document.getElementById('gamesGrid').style.display = 'grid';
+
+            // Load only selected game
+            const gamesGrid = document.getElementById('gamesGrid');
+            gamesGrid.innerHTML = '';
+            
+            const gameCard = createGameCard(gameNum);
+            gamesGrid.appendChild(gameCard);
+
+            initializeGame(gameNum);
+            startGameTimer();
+
+            // Update global button to indicate return action
+            const backBtn = document.getElementById('globalBackBtn');
+            if (backBtn) backBtn.textContent = '🎲 Back to Dice';
+        }
+
+        // Global back button handler: if we're on the dice screen (or button prompts roll), roll the dice;
+        // otherwise act as Back to Dice (exit current game).
+        function globalBackAction() {
+            const backBtn = document.getElementById('globalBackBtn');
+            const diceSection = document.getElementById('diceSection');
+            // If dice section is visible OR button text suggests rolling, trigger roll
+            if ((diceSection && diceSection.style.display !== 'none') || (backBtn && backBtn.textContent.includes('Roll'))) {
+                rollDice();
+                // reflect that games will be selected
+                if (backBtn) backBtn.textContent = '🎲 Back to Dice';
+                return;
+            }
+
+            // Otherwise, go back to dice screen
+            backToDice();
+        }
+
+        // Create Game Card HTML
+        function createGameCard(gameNum) {
+            const game = gameData[gameNum];
+            const card = document.createElement('div');
+            card.className = 'game-card';
+            card.style.gridColumn = '1 / -1'; // Full width
+            
+            let dropZoneHTML = '';
+            
+            if (game.type === 'sequence') {
+                dropZoneHTML = `
+                    <div class="sequence-zone">
+                        <div class="zone-label">Drag cards here in order:</div>
+                        <div class="drop-zone" id="game${gameNum}-drop" data-game="${gameNum}"></div>
+                    </div>
+                `;
+            } else if (game.type === 'categorize') {
+                dropZoneHTML = `
+                    <div class="two-column-game">
+                        <div class="column">
+                            <div class="column-title">📋 Traditional Automation</div>
+                            <div class="column-drop-zone" id="game${gameNum}-drop-traditional" data-game="${gameNum}" data-category="traditional"></div>
+                        </div>
+                        <div class="column">
+                            <div class="column-title">🧠 Intelligent Automation</div>
+                            <div class="column-drop-zone" id="game${gameNum}-drop-intelligent" data-game="${gameNum}" data-category="intelligent"></div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            card.innerHTML = `
+                <button class="exit-game-btn" onclick="exitGame()">✕ Exit Game</button>
+                <div class="game-header">
+                    <div class="game-title">${game.title}</div>
+                    <div class="game-status" id="game${gameNum}-status"></div>
+                </div>
+                
+                <div class="game-timer-container">
+                    <div style="font-size: 1.1em; font-weight: bold; color: #1e3c72;">⏱️ Time Remaining:</div>
+                    <div class="game-timer" id="gameTimer">60s</div>
+                </div>
+                
+                <p style="margin-bottom: 15px; color: #666;">Complete the challenge before time runs out!</p>
+                
+                <div class="cards-container" id="game${gameNum}-cards"></div>
+                
+                ${dropZoneHTML}
+
+                <div class="button-group">
+                    <button onclick="checkAnswer(${gameNum})">✓ Check Answer</button>
+                    <button class="reset-btn" onclick="resetGame(${gameNum})">↻ Reset</button>
+                </div>
+                <div class="feedback" id="game${gameNum}-feedback"></div>
+            `;
+
+            return card;
+        }
+
+        // Initialize individual game
+        function initializeGame(gameNum) {
+            const game = gameData[gameNum];
+            const container = document.getElementById(`game${gameNum}-cards`);
+            container.innerHTML = '';
+
+            if (game.type === 'sequence') {
+                const shuffled = [...game.cards].sort(() => Math.random() - 0.5);
+                shuffled.forEach((cardText, index) => {
+                    const card = createCard(cardText, gameNum, index);
+                    container.appendChild(card);
+                });
+            } else if (game.type === 'categorize') {
+                const shuffled = [...game.cards].sort(() => Math.random() - 0.5);
+                shuffled.forEach((cardData, index) => {
+                    const card = createCard(cardData.text, gameNum, index, cardData.category);
+                    container.appendChild(card);
+                });
+            }
+
+            gameState[gameNum] = { completed: false, correct: false };
+            document.getElementById(`game${gameNum}-status`).textContent = '';
+            document.getElementById(`game${gameNum}-feedback`).textContent = '';
+            document.getElementById(`game${gameNum}-feedback`).className = 'feedback';
+
+            if (game.type === 'sequence') {
+                document.getElementById(`game${gameNum}-drop`).innerHTML = '';
+                document.getElementById(`game${gameNum}-drop`).className = 'drop-zone';
+            } else if (game.type === 'categorize') {
+                document.getElementById(`game${gameNum}-drop-traditional`).innerHTML = '';
+                document.getElementById(`game${gameNum}-drop-intelligent`).innerHTML = '';
+            }
+
+            setupDropZones();
+        }
+
+        // Create draggable card
+        function createCard(text, gameNum, index, category = null) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.draggable = true;
+            card.textContent = text;
+            card.dataset.game = gameNum;
+            card.dataset.text = text;
+            if (category) {
+                card.dataset.category = category;
+            }
+
+            card.addEventListener('dragstart', handleDragStart);
+            card.addEventListener('dragend', handleDragEnd);
+
+            return card;
+        }
+
+        // Drag and Drop Handlers
+        let draggedElement = null;
+
+        function handleDragStart(e) {
+            draggedElement = e.target;
+            e.target.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/html', e.target.innerHTML);
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+        }
+
+        function handleDragOver(e) {
+            if (e.preventDefault) {
+                e.preventDefault();
+            }
+            e.dataTransfer.dropEffect = 'move';
+            return false;
+        }
+
+        function handleDragEnter(e) {
+            if (e.target.classList.contains('drop-zone') || e.target.classList.contains('column-drop-zone') || e.target.classList.contains('cards-container')) {
+                e.target.classList.add('drag-over');
+            }
+        }
+
+        function handleDragLeave(e) {
+            if (e.target.classList.contains('drop-zone') || e.target.classList.contains('column-drop-zone') || e.target.classList.contains('cards-container')) {
+                e.target.classList.remove('drag-over');
+            }
+        }
+
+        function handleDrop(e) {
+            if (e.stopPropagation) {
+                e.stopPropagation();
+            }
+
+            e.target.classList.remove('drag-over');
+
+            if (draggedElement && (e.target.classList.contains('drop-zone') || 
+                e.target.classList.contains('column-drop-zone') || 
+                e.target.classList.contains('cards-container'))) {
+                
+                const clone = draggedElement.cloneNode(true);
+                clone.addEventListener('dragstart', handleDragStart);
+                clone.addEventListener('dragend', handleDragEnd);
+                
+                e.target.appendChild(clone);
+                draggedElement.remove();
+            }
+
+            return false;
+        }
+
+        // Setup drop zones
+        function setupDropZones() {
+            const dropZones = document.querySelectorAll('.drop-zone, .column-drop-zone, .cards-container');
+            dropZones.forEach(zone => {
+                zone.addEventListener('dragover', handleDragOver);
+                zone.addEventListener('dragenter', handleDragEnter);
+                zone.addEventListener('dragleave', handleDragLeave);
+                zone.addEventListener('drop', handleDrop);
+            });
+        }
+
+        // Check Answer
+        function checkAnswer(gameNum) {
+            const game = gameData[gameNum];
+            const feedback = document.getElementById(`game${gameNum}-feedback`);
+            let isCorrect = false;
+
+            if (game.type === 'sequence') {
+                const dropZone = document.getElementById(`game${gameNum}-drop`);
+                const cards = Array.from(dropZone.querySelectorAll('.card'));
+                const userOrder = cards.map(card => card.dataset.text);
+
+                isCorrect = JSON.stringify(userOrder) === JSON.stringify(game.correctOrder);
+
+                if (isCorrect) {
+                    dropZone.classList.add('correct');
+                    dropZone.classList.remove('incorrect');
+                    feedback.textContent = '✅ Perfect! You got the sequence right!';
+                    feedback.className = 'feedback success';
+                    document.getElementById(`game${gameNum}-status`).textContent = '✅';
+                    stopGameTimer();
+                    
+                    // Calculate time bonus
+                    const timeBonus = gameTimeRemaining * 2;
+                    timeBonusPoints += timeBonus;
+                    
+                    gameState[gameNum].completed = true;
+                    gameState[gameNum].correct = true;
+                    updateScore();
+                    
+                    // Show completion message
+                    setTimeout(() => {
+                        checkGameCompletion();
+                    }, 1500);
+                } else {
+                    dropZone.classList.add('incorrect');
+                    dropZone.classList.remove('correct');
+                    feedback.textContent = '❌ Not quite right. Try again!';
+                    feedback.className = 'feedback error';
+                    document.getElementById(`game${gameNum}-status`).textContent = '❌';
+                }
+            } else if (game.type === 'categorize') {
+                const traditionalZone = document.getElementById(`game${gameNum}-drop-traditional`);
+                const intelligentZone = document.getElementById(`game${gameNum}-drop-intelligent`);
+
+                const traditionalCards = Array.from(traditionalZone.querySelectorAll('.card'));
+                const intelligentCards = Array.from(intelligentZone.querySelectorAll('.card'));
+
+                const traditionalCorrect = traditionalCards.every(card => card.dataset.category === 'traditional');
+                const intelligentCorrect = intelligentCards.every(card => card.dataset.category === 'intelligent');
+                const allPlaced = traditionalCards.length + intelligentCards.length === game.cards.length;
+
+                isCorrect = traditionalCorrect && intelligentCorrect && allPlaced;
+
+                if (isCorrect) {
+                    feedback.textContent = '✅ Excellent! All items are correctly categorized!';
+                    feedback.className = 'feedback success';
+                    document.getElementById(`game${gameNum}-status`).textContent = '✅';
+                    stopGameTimer();
+                    
+                    // Calculate time bonus
+                    const timeBonus = gameTimeRemaining * 2;
+                    timeBonusPoints += timeBonus;
+                    
+                    gameState[gameNum].completed = true;
+                    gameState[gameNum].correct = true;
+                    updateScore();
+                    
+                    // Show completion message
+                    setTimeout(() => {
+                        checkGameCompletion();
+                    }, 1500);
+                } else {
+                    feedback.textContent = '❌ Some items are in the wrong category. Try again!';
+                    feedback.className = 'feedback error';
+                    document.getElementById(`game${gameNum}-status`).textContent = '❌';
+                }
+            }
+        }
+
+        // Check Game Completion
+        function checkGameCompletion() {
+            const allSelectedCompleted = selectedGames.every(num => gameState[num].completed);
+            
+            if (allSelectedCompleted) {
+                setTimeout(() => {
+                    showCelebration();
+                }, 500);
+            } else {
+                // Go back to game selection
+                backToDice();
+            }
+        }
+
+        // Reset individual game: return all tiles to the question area and clear drop zones
+        // NOTE: This intentionally does NOT touch the running timer or gameState flags.
+        function resetGame(gameNum) {
+            const game = gameData[gameNum];
+
+            // Rebuild the source cards container without changing timer or completion flags
+            const container = document.getElementById(`game${gameNum}-cards`);
+            container.innerHTML = '';
+
+            if (game.type === 'sequence') {
+                const shuffled = [...game.cards].sort(() => Math.random() - 0.5);
+                shuffled.forEach((cardText, index) => {
+                    const card = createCard(cardText, gameNum, index);
+                    container.appendChild(card);
+                });
+
+                const drop = document.getElementById(`game${gameNum}-drop`);
+                if (drop) {
+                    drop.innerHTML = '';
+                    drop.className = 'drop-zone';
+                }
+            } else if (game.type === 'categorize') {
+                const shuffled = [...game.cards].sort(() => Math.random() - 0.5);
+                shuffled.forEach((cardData, index) => {
+                    const card = createCard(cardData.text, gameNum, index, cardData.category);
+                    container.appendChild(card);
+                });
+
+                const trad = document.getElementById(`game${gameNum}-drop-traditional`);
+                const intel = document.getElementById(`game${gameNum}-drop-intelligent`);
+                if (trad) trad.innerHTML = '';
+                if (intel) intel.innerHTML = '';
+            }
+
+            // Clear visual feedback and status but do not reset gameState/completion or timer
+            const feedback = document.getElementById(`game${gameNum}-feedback`);
+            if (feedback) {
+                feedback.textContent = '';
+                feedback.className = 'feedback';
+            }
+            const status = document.getElementById(`game${gameNum}-status`);
+            if (status) status.textContent = '';
+
+            // Reattach drag/drop handlers
+            setupDropZones();
+        }
+
+        // Reset current game (from global controls)
+        function resetCurrentGame() {
+            if (currentGameNumber) {
+                resetGame(currentGameNumber);
+            }
+        }
+
+        // Exit Game
+        function exitGame() {
+            stopGameTimer();
+            backToDice();
+        }
+
+        // Back to Dice
+        function backToDice() {
+            stopGameTimer();
+            // Show dice area and clear current game grid
+            document.getElementById('diceSection').style.display = 'block';
+            document.getElementById('gamesGrid').style.display = 'none';
+            document.getElementById('gamesGrid').innerHTML = '';
+
+            // Reset dice visual and selection UI
+            const diceNumber = document.getElementById('diceNumber');
+            if (diceNumber) diceNumber.textContent = '🎲';
+            const selectedText = document.getElementById('selectedGamesText');
+            if (selectedText) selectedText.innerHTML = '';
+            const selector = document.getElementById('gameSelectorCards');
+            if (selector) selector.innerHTML = '';
+
+            // Clear selected games and update score/progress
+            selectedGames = [];
+            updateScore();
+
+            currentGameNumber = null;
+
+            // Update global button text to prompt rolling again
+            const backBtn = document.getElementById('globalBackBtn');
+            if (backBtn) backBtn.textContent = '🎲 Roll a dice';
+        }
+
+        // Start Game Timer
+        function startGameTimer() {
+            gameTimeRemaining = 60;
+            updateGameTimer();
+            gameTimer = setInterval(() => {
+                gameTimeRemaining--;
+                updateGameTimer();
+                if (gameTimeRemaining <= 0) {
+                    stopGameTimer();
+                    gameTimeUp();
+                }
+            }, 1000);
+        }
+
+        // Stop Game Timer
+        function stopGameTimer() {
+            if (gameTimer) {
+                clearInterval(gameTimer);
+                gameTimer = null;
+            }
+        }
+
+        // Update Game Timer Display
+        function updateGameTimer() {
+            const timerElement = document.getElementById('gameTimer');
+            if (timerElement) {
+                timerElement.textContent = `${gameTimeRemaining}s`;
+                
+                timerElement.className = 'game-timer';
+                if (gameTimeRemaining <= 10) {
+                    timerElement.classList.add('danger');
+                } else if (gameTimeRemaining <= 20) {
+                    timerElement.classList.add('warning');
+                }
+            }
+        }
+
+        // Game Time Up
+        function gameTimeUp() {
+            if (currentGameNumber) {
+                const feedback = document.getElementById(`game${currentGameNumber}-feedback`);
+                feedback.textContent = '⏰ Time\'s up! Try again or go back to select another game.';
+                feedback.className = 'feedback error';
+            }
+        }
+
+        // Update score display
+        function updateScore() {
+            let completedCount = 0;
+
+            selectedGames.forEach(num => {
+                if (gameState[num].completed) completedCount++;
+            });
+
+            document.getElementById('totalScore').textContent = completedCount;
+            document.getElementById('totalGames').textContent = selectedGames.length;
+            document.getElementById('timeBonus').textContent = timeBonusPoints;
+            
+            // Update progress bar
+            const progress = selectedGames.length > 0 ? (completedCount / selectedGames.length) * 100 : 0;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        // Show celebration
+        function showCelebration() {
+            const celebration = document.getElementById('celebration');
+            celebration.innerHTML = `
+                🎉 Congratulations! 🎉<br>
+                You've completed all ${selectedGames.length} games!<br>
+                <span style="font-size: 0.6em;">Time Bonus: ${timeBonusPoints} points</span>
+            `;
+            celebration.classList.add('show');
+            
+            setTimeout(() => {
+                celebration.classList.remove('show');
+                // Reset for next round
+                timeBonusPoints = 0;
+                selectedGames.forEach(num => {
+                    gameState[num].completed = false;
+                    gameState[num].correct = false;
+                });
+                updateScore();
+                backToDice();
+            }, 4000);
+        }
+    </script>
+</body>
+</html>
